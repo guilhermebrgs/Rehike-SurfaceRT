@@ -68,28 +68,29 @@ class PlayerUpdater
         }
 
         // ========================================================
-        // 🚀 O NOVO MOTOR DE BUSCA DE STS
+        // 🚀 O MOTOR DE BUSCA COM DIAGNÓSTICO (SUPER REGEX)
         // ========================================================
         try {
-            // Passo 1: Tenta o caminho normal (que hoje dá erro 404)
+            // Passo 1: Tenta o JS oficial (que ultimamente dá 404)
             $js = self::requestApplication(self::unrelativize($latestJsUrl));
             $sts = self::extractSts($js);
         } catch (\Throwable $e) {
             // Passo 2: FALLBACK SUPREMO
-            // O JS falhou. Vamos usar o motor de rede perfeito do próprio Rehike 
-            // para acessar a Home do YouTube (onde o STS está escondido agora)
             try {
                 $homeHtml = Network::request("https://www.youtube.com");
                 
-                // Regex melhorado para ignorar espaços em branco extras
-                if (preg_match('/"sts"\s*:\s*(\d+)/', $homeHtml, $matches)) {
+                // 🕵️ GRAVA A CENA DO CRIME: Salva o HTML no disco
+                $caminhoLog = "D:/Programs/Rehike/logs/cena_do_crime.html";
+                @file_put_contents($caminhoLog, $homeHtml);
+                
+                // 🔍 "SUPER REGEX": Procura por sts, STS ou signatureTimestamp
+                if (preg_match('/"(?:sts|STS|signatureTimestamp)"\s*[:=]\s*(\d+)/', $homeHtml, $matches)) {
                     $sts = (string)$matches[1];
                 } else {
-                    throw new UpdaterException("O Rehike baixou a Home, mas o Regex nao achou o STS.");
+                    throw new UpdaterException("Regex falhou. Abra 'logs/cena_do_crime.html' no navegador do Surface para ver a resposta do Google.");
                 }
             } catch (\Throwable $e2) {
-                // Se a rede interna do Rehike falhar, avisa na tela.
-                throw new UpdaterException("Falha na rede interna do Rehike: " . $e2->getMessage());
+                throw new UpdaterException("Falha no Fallback: " . $e2->getMessage());
             }
         }
         // ========================================================
@@ -98,7 +99,6 @@ class PlayerUpdater
             $playerChoice = Config::getConfigProp("appearance.playerChoice");
         else
             $playerChoice = "CURRENT";
-
 
         if ("PLAYER_2022" === $playerChoice)
         {
