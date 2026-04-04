@@ -55,8 +55,6 @@ class PlayerUpdater
     {
         $html = self::requestAppHtml();
 
-        // Attempt to get application URLs from the
-        // response.
         try
         {
             $latestJsUrl = self::extractApplicationUrl($html);
@@ -69,22 +67,32 @@ class PlayerUpdater
             throw $e;
         }
 
-        // Baixa o arquivo JS (que ultimamente tem retornado a página 404)
-        $js = self::requestApplication(self::unrelativize($latestJsUrl));
-
+        // ========================================================
+        // 🚀 O NOVO MOTOR DE BUSCA DE STS
+        // ========================================================
         try {
-            // Tenta o caminho oficial: extrair o STS do arquivo JS
+            // Passo 1: Tenta o caminho normal (que hoje dá erro 404)
+            $js = self::requestApplication(self::unrelativize($latestJsUrl));
             $sts = self::extractSts($js);
         } catch (\Throwable $e) {
-            // FALLBACK NINJA: Se o JS falhou (Erro 404), nós simplesmente procuramos
-            // o STS dentro do $html da página Embed que já foi baixada no início da função!
-            if (preg_match('/"sts":\s*(\d+)/', $html, $fallbackMatches)) {
-                $sts = (string)$fallbackMatches[1];
-            } else {
-                // Se não achar nem no JS nem no HTML Embed, lança o erro fatal.
-                throw new UpdaterException("Falha ao obter STS: JS retornou 404 e HTML Embed não continha a chave.");
+            // Passo 2: FALLBACK SUPREMO
+            // O JS falhou. Vamos usar o motor de rede perfeito do próprio Rehike 
+            // para acessar a Home do YouTube (onde o STS está escondido agora)
+            try {
+                $homeHtml = Network::request("https://www.youtube.com");
+                
+                // Regex melhorado para ignorar espaços em branco extras
+                if (preg_match('/"sts"\s*:\s*(\d+)/', $homeHtml, $matches)) {
+                    $sts = (string)$matches[1];
+                } else {
+                    throw new UpdaterException("O Rehike baixou a Home, mas o Regex nao achou o STS.");
+                }
+            } catch (\Throwable $e2) {
+                // Se a rede interna do Rehike falhar, avisa na tela.
+                throw new UpdaterException("Falha na rede interna do Rehike: " . $e2->getMessage());
             }
         }
+        // ========================================================
 
         if (IS_REHIKE)
             $playerChoice = Config::getConfigProp("appearance.playerChoice");
@@ -102,28 +110,27 @@ class PlayerUpdater
             $effectiveJsUrl = "/yts/jsbin/player_ias-vfl1Ng2HU/en_US/base.js";
             $effectiveCssUrl = "/yts/cssbin/player-vflfo9Nwd/www-player-webp.css";
         }
-		else if("PLAYER_2015_NEW" === $playerChoice)
-		{
-			$effectiveJsUrl = "/rehike/static/js/html5player/2015/html5player-new.js";
-			$effectiveCssUrl = "//s.ytimg.com/yts/cssbin/www-player-new-vfliB0u8F.css";
+        else if("PLAYER_2015_NEW" === $playerChoice)
+        {
+            $effectiveJsUrl = "/rehike/static/js/html5player/2015/html5player-new.js";
+            $effectiveCssUrl = "//s.ytimg.com/yts/cssbin/www-player-new-vfliB0u8F.css";
         }
-		else if("PLAYER_2015" === $playerChoice)
-		{
-			$effectiveJsUrl = "/rehike/static/js/html5player/2015/html5player.js";
-			$effectiveCssUrl = "//s.ytimg.com/yts/cssbin/www-player-vflgv54Kk.css";
-		} 
+        else if("PLAYER_2015" === $playerChoice)
+        {
+            $effectiveJsUrl = "/rehike/static/js/html5player/2015/html5player.js";
+            $effectiveCssUrl = "//s.ytimg.com/yts/cssbin/www-player-vflgv54Kk.css";
+        } 
         else if ("PLAYER_2014" === $playerChoice)
         {
             $effectiveJsUrl = "/rehike/static/js/html5player/2014/html5player.js";
             $effectiveCssUrl = "//s.ytimg.com/yts/cssbin/www-player-vfluwFMix.css";
         }
-		else // CURRENT player, also as fallback for invalid player choice values
+        else // CURRENT player, also as fallback for invalid player choice values
         {
             $effectiveJsUrl = $latestJsUrl;
             $effectiveCssUrl = $latestCssUrl;
         }
 
-        // Pack these up and return:
         return (object)[
             "baseJsUrl" => $effectiveJsUrl,
             "baseCssUrl" => $effectiveCssUrl,
