@@ -252,37 +252,4 @@ video-{{ yt.videoId }} {{ (yt.theaterMode) ? 'watch-wide watch-stage-mode' }}
       </div>
    </div>
 </div>
-
-    <script>
-        // Função raiz para pegar o ID do vídeo (Compatível com IE11)
-        function getQueryParam(name) {
-            var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
-            return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            var vid = getQueryParam('v');
-            if (vid) {
-                var interval = setInterval(function() {
-                    var playerContainer = document.getElementById('player-api') || document.getElementById('player');
-                    if (playerContainer) {
-                        clearInterval(interval); 
-                        
-                        playerContainer.innerHTML = '';
-                        
-                        var videoTag = document.createElement('video');
-                        videoTag.src = '/surface_api_video?v=' + vid;
-                        videoTag.controls = true;
-                        videoTag.autoplay = true;
-                        videoTag.style.width = '100%';
-                        videoTag.style.height = '100%';
-                        videoTag.style.backgroundColor = '#000';
-                        videoTag.style.outline = 'none';
-                        
-                        playerContainer.appendChild(videoTag);
-                    }
-                }, 500);
-            }
-        });
-    </script>
 {% endblock %}
