@@ -23,7 +23,7 @@ use const CURLINFO_HTTP_CODE;
 use CurlMultiHandle;
 use Rehike\Async\Promise\PromiseStatus;
 
-if (PHP_VERSION_ID >= 80100)
+if (PHP_VERSION_ID >= 81000)
 {
 
 //=====================================================================

@@ -78,8 +78,26 @@ class RequestTransformer
         $target[CURLOPT_HTTPHEADER] = self::convertHeaders($request->headers);
 
         // User agent:
-        $target[CURLOPT_USERAGENT] =
-        ($request->userAgent == "") ? $_SERVER["HTTP_USER_AGENT"] : $request->userAgent;
+        if (isset($request->url))
+        {
+            if (strpos($request->url, 'youtubei/v1/player') !== false
+                || strpos($request->url, 'watch?v=') !== false
+                || strpos($request->url, '/embed/') !== false)
+            {
+                $target[CURLOPT_USERAGENT] =
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64; Edge/18.19041)';
+            }
+            else
+            {
+                $target[CURLOPT_USERAGENT] =
+                ($request->userAgent == "") ? $_SERVER["HTTP_USER_AGENT"] : $request->userAgent;
+            }
+        }
+        else
+        {
+            $target[CURLOPT_USERAGENT] =
+            ($request->userAgent == "") ? $_SERVER["HTTP_USER_AGENT"] : $request->userAgent;
+        }
 
         // Post body:
         if ("POST" == $request->method && isset($request->body))
