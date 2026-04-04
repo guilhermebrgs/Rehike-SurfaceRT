@@ -36,6 +36,29 @@ class PlayerExperimentFlags
     }
     
     /**
+     * Applies overrides to improve performance on low-end hardware (e.g. Surface RT).
+     * Disables heavy visual features like Ambient Mode, Cinematic Watch, and 
+     * Frosted Glass effects.
+     */
+    public function applyLowPerformanceOverrides(): void
+    {
+        $overrides = [
+            "web_ambient_mode_enabled" => "false",
+            "web_cinematic_watch_settings" => "false",
+            "web_player_frosted_glass_blur_radius" => "0",
+            "delhi_modern_web_player_disable_frosted_glass" => "true",
+            "mweb_animated_actions" => "false",
+            "html5_player_dynamic_bottom_gradient" => "false",
+            "web_player_move_autonav_toggle" => "false"
+        ];
+
+        foreach ($overrides as $key => $value)
+        {
+            $this->setFlag($key, $value);
+        }
+    }
+    
+    /**
      * Serialises the flags set into a URL-encoded string for consumption by the
      * YouTube player.
      */

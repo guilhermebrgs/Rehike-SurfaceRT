@@ -51,6 +51,7 @@ class ConfigDefinitions
                 "watchSidebarVerification" => new BoolProp(false),
                 "oldBestOfYouTubeIcons" => new BoolProp(false),
                 "enableAdblock" => new BoolProp(true),
+                "lowPerformanceMode" => new BoolProp(true),
             ],
             "experiments" => [
                 "displayPlayerChoice" => (new BoolProp(false))->registerUpdateCb(function() {
