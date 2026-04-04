@@ -213,15 +213,15 @@ abstract class HitchhikerController extends PageController
      */
     public function initPlayer(): Promise
     {
-        return async(function() {
-            $playerFlags = new PlayerExperimentFlags();
-            YtApp::getInstance()->playerExperimentFlags = $playerFlags;
+        $playerFlags = new PlayerExperimentFlags();
+        YtApp::getInstance()->playerExperimentFlags = $playerFlags;
 
-            if (Config::getConfigProp("appearance.lowPerformanceMode"))
-            {
-                $playerFlags->applyLowPerformanceOverrides();
-            }
-            
+        if (Config::getConfigProp("appearance.lowPerformanceMode"))
+        {
+            $playerFlags->applyLowPerformanceOverrides();
+        }
+        
+        return async(function() use ($playerFlags) {
             // Ensure that PO tokens are configured alright for the player.
             $flagManager = new ExperimentFlagManager();
             yield $flagManager->initialize();

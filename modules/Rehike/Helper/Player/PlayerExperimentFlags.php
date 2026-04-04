@@ -49,7 +49,9 @@ class PlayerExperimentFlags
             "delhi_modern_web_player_disable_frosted_glass" => "true",
             "mweb_animated_actions" => "false",
             "html5_player_dynamic_bottom_gradient" => "false",
-            "web_player_move_autonav_toggle" => "false"
+            "web_player_move_autonav_toggle" => "false",
+            "html5_enable_sabr_from_watch_server" => "false",
+            "html5_disable_auto_switch_to_sabr" => "true"
         ];
 
         foreach ($overrides as $key => $value)
