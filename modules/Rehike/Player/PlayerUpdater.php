@@ -177,12 +177,10 @@ class PlayerUpdater
         if (false != $status)
         {
             $url = $matches[0];
-            // NOTE: The old str_replace("player_embed", "player") was converting
-            // "player_embed.vflset" → "player.vflset", but YouTube no longer hosts
-            // a "player.vflset" variant with the same hash. The player_embed version
-            // works correctly for both embedded and main-page playback, so we keep
-            // the URL as-is. The _ias suffix variants are handled separately.
-            $url = str_replace("player_embed_ias", "player_ias", $url);
+            // YouTube now uses player_ias.vflset for the full site.
+            // Mapping player_embed and its variants ensures the UI controls 
+            // are restored (not possible in the stripped-down embed variant).
+            $url = str_replace(["player_embed_ias", "player_embed"], "player_ias", $url);
             return $url;
         }
         else
