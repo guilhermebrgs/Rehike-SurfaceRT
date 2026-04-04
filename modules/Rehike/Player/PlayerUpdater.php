@@ -227,7 +227,6 @@ class PlayerUpdater
      */
     public static function extractSts(string $player): string
     {
-        // 1. Tenta o método padrão do Rehike
         preg_match(PlayerCore::$stsRegex, $player, $matches);
 
         if (isset($matches[1]))
@@ -236,35 +235,40 @@ class PlayerUpdater
         }
         else
         {
-            // --- FALLBACK ROBUSTO COM CURL ---
             $ch = curl_init("https://www.youtube.com");
             
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
-            
-            // Ignora erros de certificado SSL no ambiente de desenvolvimento
+            // Um User-Agent de um navegador real bem completo para enganar o Google
+            curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-            
-            // Força limite de tempo para não travar o servidor
             curl_setopt($ch, CURLOPT_TIMEOUT, 10);
             
-            // SE o seu arquivo hosts estiver bloqueando, descomente a linha abaixo 
-            // e coloque um dos IPs do Google que extraímos no log anterior:
-            // curl_setopt($ch, CURLOPT_RESOLVE, ["www.youtube.com:443:142.250.79.206"]);
+            // OBRIGATÓRIO: Força o PHP a ignorar o seu arquivo hosts e o proxy reverso.
+            // Conecta direto no IP do Google (142.250.79.206)
+            curl_setopt($ch, CURLOPT_RESOLVE, ["www.youtube.com:443:142.250.79.206"]);
 
             $ytHome = curl_exec($ch);
+            $curlErro = curl_error($ch); // Captura o erro interno da rede
             curl_close($ch);
 
             if ($ytHome && preg_match('/"sts":\s*(\d+)/', $ytHome, $homeMatches)) 
             {
                 return (string)$homeMatches[1];
             }
-            // ---------------------------------
 
-            // Falha crítica caso a internet realmente caia
+            // MENSAGEM DE ERRO INTELIGENTE (O "Dedo-Duro")
+            $motivo = "";
+            if ($curlErro) {
+                $motivo = "Erro de Rede cURL: " . $curlErro;
+            } elseif (!$ytHome) {
+                $motivo = "O Google nao enviou o HTML (Resposta vazia).";
+            } else {
+                $motivo = "O HTML foi baixado, mas o Regex nao encontrou o STS.";
+            }
+
             throw new UpdaterException(
-                "Failed to get signature timestamp of player (Fallback cURL falhou)."
+                "Falha ao obter STS. Motivo: " . $motivo
             );
         }
     }
