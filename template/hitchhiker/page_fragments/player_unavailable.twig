@@ -2,11 +2,11 @@
 <img class="icon meh" src="{{ ytConstants.img.meh7 }}" alt="">
 <div class="content">
     <h1 id="unavailable-message" class="message">
-        {{ rehike.getText(yt.playerUnavailable.reason) }}
+        {{ rehike.getText(yt.playerUnavailable.reason)|replace({'$BEGIN_LINK': '', '$END_LINK': ''}) }}
     </h1>
     {% if yt.playerUnavailable.subreason %}
     <div id="unavailable-submessage" class="submessage">
-        {{ rehike.getText(yt.playerUnavailable.subreason) }}
+        {{ rehike.getText(yt.playerUnavailable.subreason)|replace({'$BEGIN_LINK': '', '$END_LINK': ''}) }}
         {%- if yt.playerUnavailable.subreason.watch7PlayerAgeGateContent -%}
             {% set agegate = yt.playerUnavailable.subreason.watch7PlayerAgeGateContent %}
             <div id="watch7-player-age-gate-content">

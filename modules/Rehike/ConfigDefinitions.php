@@ -24,6 +24,14 @@ class ConfigDefinitions
     {
         return [
             "appearance" => [
+                "playerChoice" => new EnumProp("PLAYER_2014", [
+                    "CURRENT", 
+                    "PLAYER_2014", 
+                    "PLAYER_2015", 
+                    "PLAYER_2015_NEW", 
+                    "PLAYER_2020", 
+                    "PLAYER_2022"
+                ]),
                 "smallPlayer" => new BoolProp(true),
                 "branding" => new EnumProp("BRANDING_2024_RINGO2", [
                     "BRANDING_2024_RINGO2",

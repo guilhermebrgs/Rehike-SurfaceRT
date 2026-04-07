@@ -51,7 +51,12 @@ class PlayerExperimentFlags
             "html5_player_dynamic_bottom_gradient" => "false",
             "web_player_move_autonav_toggle" => "false",
             "html5_enable_sabr_from_watch_server" => "false",
-            "html5_disable_auto_switch_to_sabr" => "true"
+            "html5_disable_auto_switch_to_sabr" => "true",
+            "html5_prefer_h264" => "true",
+            "html5_disable_vp9" => "true",
+            "html5_disable_vp9_live" => "true",
+            "html5_disable_av1" => "true",
+            "html5_disable_av1_hdr" => "true"
         ];
 
         foreach ($overrides as $key => $value)

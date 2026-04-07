@@ -67,38 +67,27 @@ class PlayerUpdater
             throw $e;
         }
 
-        // ========================================================
-        // 🚀 O MOTOR DE BUSCA COM DIAGNÓSTICO (SUPER REGEX)
-        // ========================================================
         try {
-            // Passo 1: Tenta o JS oficial (que ultimamente dá 404)
             $js = self::requestApplication(self::unrelativize($latestJsUrl));
             $sts = self::extractSts($js);
         } catch (\Throwable $e) {
-            // Passo 2: FALLBACK SUPREMO
             try {
                 $homeHtml = Network::request("https://www.youtube.com");
                 
-                // 🕵️ GRAVA A CENA DO CRIME: Salva o HTML no disco
-                $caminhoLog = "D:/Programs/Rehike/logs/cena_do_crime.html";
-                @file_put_contents($caminhoLog, $homeHtml);
-                
-                // 🔍 "SUPER REGEX": Procura por sts, STS ou signatureTimestamp
                 if (preg_match('/"(?:sts|STS|signatureTimestamp)"\s*[:=]\s*(\d+)/', $homeHtml, $matches)) {
                     $sts = (string)$matches[1];
                 } else {
-                    throw new UpdaterException("Regex falhou. Abra 'logs/cena_do_crime.html' no navegador do Surface para ver a resposta do Google.");
+                    throw new UpdaterException("Failed to find STS in fallback.");
                 }
             } catch (\Throwable $e2) {
-                throw new UpdaterException("Falha no Fallback: " . $e2->getMessage());
+                throw new UpdaterException("Failed to fetch player fallback: " . $e2->getMessage());
             }
         }
-        // ========================================================
 
         if (IS_REHIKE)
             $playerChoice = Config::getConfigProp("appearance.playerChoice");
         else
-            $playerChoice = "CURRENT";
+            $playerChoice = "PLAYER_2014";
 
         if ("PLAYER_2022" === $playerChoice)
         {
