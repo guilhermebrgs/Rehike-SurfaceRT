@@ -24,7 +24,7 @@ class ConfigDefinitions
     {
         return [
             "appearance" => [
-                "playerChoice" => new EnumProp("PLAYER_2014", [
+                "playerChoice" => new EnumProp("CURRENT", [
                     "CURRENT", 
                     "PLAYER_2014", 
                     "PLAYER_2015", 
@@ -62,7 +62,9 @@ class ConfigDefinitions
                 "lowPerformanceMode" => new BoolProp(true),
             ],
             "experiments" => [
-                "displayPlayerChoice" => new BoolProp(true),
+                "displayPlayerChoice" => (new BoolProp(false))->registerUpdateCb(function() {
+                    Config::setConfigProp("appearance.playerChoice", "CURRENT");
+                }),
                 "useSignInV2" => new BoolProp(false),
                 "asyncAttestationRequest" => new BoolProp(true),
                 "disableSignInOnHome" => new BoolProp(false),
@@ -119,11 +121,7 @@ class ConfigDefinitions
             )
         );
         
-        if (Config::getConfigProp("appearance.playerChoice") === "CURRENT" || Config::getConfigProp("appearance.playerChoice") === null)
-        {
-            Config::setConfigProp("appearance.playerChoice", "PLAYER_2014");
-            $changedAnything = true;
-        }
+
         
         if ($changedAnything)
         {

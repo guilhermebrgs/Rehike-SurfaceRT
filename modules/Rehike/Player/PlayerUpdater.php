@@ -84,9 +84,10 @@ class PlayerUpdater
             }
         }
 
-        // Para o Surface RT, o player legado é forçado para garantir 100% de 
-        // compatibilidade no IE11 e alta performance nativa, independente de flags.
-        $playerChoice = "PLAYER_2020";
+        if (IS_REHIKE)
+            $playerChoice = Config::getConfigProp("appearance.playerChoice");
+        else
+            $playerChoice = "PLAYER_2014";
 
         if ("PLAYER_2022" === $playerChoice)
         {
