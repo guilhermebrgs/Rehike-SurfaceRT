@@ -169,8 +169,8 @@ class WatchPageController extends NirvanaController implements IGetControllerAsy
             $sharedRequestParams + $nextOnlyParams
         );
         
-        $playerRequestClient = "WEB";
-        $playerRequestClientVersion = "2.20260402.02.00";
+        $playerRequestClient = "WEB_EMBEDDED_PLAYER";
+        $playerRequestClientVersion = "1.20230331.00.00";
         
         if (Config::getConfigProp("experiments.temp20240827_playerMode") == "USE_EMBEDDED_PLAYER_REQUEST")
         {
