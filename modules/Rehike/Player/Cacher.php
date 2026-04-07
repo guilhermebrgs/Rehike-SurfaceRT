@@ -34,7 +34,7 @@ class Cacher
         $root = PlayerCore::$cacheDestDir;
         $name = PlayerCore::$cacheDestName;
         $path = "$root/$name.json";
-        $playerChoice = "PLAYER_2014";
+        $playerChoice = "PLAYER_2020";
 
         if (!DEBUG && file_exists($path))
         {
@@ -91,7 +91,7 @@ class Cacher
         $expireTime = time() + $duration;
 
         if (IS_REHIKE)
-            $playerChoice = "PLAYER_2014";
+            $playerChoice = "PLAYER_2020";
 
         $result = (object)[
             "expire" => $expireTime,
