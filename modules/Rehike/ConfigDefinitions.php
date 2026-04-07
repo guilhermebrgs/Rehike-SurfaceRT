@@ -62,15 +62,7 @@ class ConfigDefinitions
                 "lowPerformanceMode" => new BoolProp(true),
             ],
             "experiments" => [
-                "displayPlayerChoice" => (new BoolProp(false))->registerUpdateCb(function() {
-                    // When this configuration option is changed, there is an expectation from
-                    // the user for it to reset the player setting back to the latest player,
-                    // as would be the only possible state prior to enabling the option.
-                    // https://github.com/Rehike/Rehike/issues/593#issuecomment-2272158302
-                    
-                    Config::setConfigProp("appearance.playerChoice", "CURRENT");
-                    Config::dumpConfig();
-                }),
+                "displayPlayerChoice" => new BoolProp(true),
                 "useSignInV2" => new BoolProp(false),
                 "asyncAttestationRequest" => new BoolProp(true),
                 "disableSignInOnHome" => new BoolProp(false),
@@ -126,6 +118,12 @@ class ConfigDefinitions
                 : "BRANDING_2015"
             )
         );
+        
+        if (Config::getConfigProp("appearance.playerChoice") === "CURRENT" || Config::getConfigProp("appearance.playerChoice") === null)
+        {
+            Config::setConfigProp("appearance.playerChoice", "PLAYER_2014");
+            $changedAnything = true;
+        }
         
         if ($changedAnything)
         {
