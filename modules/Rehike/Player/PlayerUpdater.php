@@ -166,6 +166,10 @@ class PlayerUpdater
         if (false != $status)
         {
             $url = $matches[0];
+            // O YouTube usa o player_ias para o site completo.
+            // Mapear o player_embed (que vem do iframe de origem) para o player_ias
+            // garante que os controles da UI (chrome) sejam restaurados.
+            $url = str_replace(["player_embed_ias", "player_embed"], "player_ias", $url);
             return $url;
         }
         else
@@ -183,7 +187,10 @@ class PlayerUpdater
 
         if (false != $status)
         {
-            return $matches[0];
+            $url = $matches[0];
+            // O YouTube usa o www-player para o site completo.
+            $url = str_replace(["player_embed_ias", "player_embed"], "www-player", $url);
+            return $url;
         }
         else
         {
