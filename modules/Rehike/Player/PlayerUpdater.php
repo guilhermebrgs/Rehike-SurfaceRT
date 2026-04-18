@@ -166,10 +166,6 @@ class PlayerUpdater
         if (false != $status)
         {
             $url = $matches[0];
-            // YouTube now uses player_ias.vflset for the full site.
-            // Mapping player_embed and its variants ensures the UI controls 
-            // are restored (not possible in the stripped-down embed variant).
-            $url = str_replace(["player_embed_ias", "player_embed"], "player_ias", $url);
             return $url;
         }
         else

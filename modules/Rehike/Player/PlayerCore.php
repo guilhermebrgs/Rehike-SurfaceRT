@@ -43,7 +43,7 @@ class PlayerCore extends Configurable
     static string $playerCssRegex = "#/s/player/[a-zA-Z0-9/\-_.]*(www-player|www-player-webp|player-rtl).css#";
     static string $embedJsRegex = "#/s/(player|embeds)/[a-zA-Z0-9/\-_.]*www-embed-player(-es6)?.js#";
     static string $embedJsRegex2 = "#/s/(player|embeds)/[a-zA-Z0-9/\-_.]*player(-|_)embed((-|_)es6)?.*?.js#";
-    static string $stsRegex = "/signatureTimestamp:?\s*([0-9]*)/";
+    static string $stsRegex = "/(?:signatureTimestamp|sts)\s*[:=]\s*[\"']?([0-9]+)[\"']?/";
 
     static string $cacheDestDir = "cache";
     static string $cacheDestName = "player_cache"; // .json
