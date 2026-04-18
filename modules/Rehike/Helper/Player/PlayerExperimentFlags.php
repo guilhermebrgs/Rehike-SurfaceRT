@@ -52,6 +52,7 @@ class PlayerExperimentFlags
             "web_player_move_autonav_toggle" => "false",
         "html5_enable_sabr_from_watch_server" => "false",
         "html5_disable_auto_switch_to_sabr" => "true",
+        "html5_disable_adaptive" => "true",
         "html5_vss_ignore_unsupported_client_version" => "true",
         "web_heartbeat_v2_enabled" => "true",
         "web_foreground_heartbeat_interval_ms" => "20000",
