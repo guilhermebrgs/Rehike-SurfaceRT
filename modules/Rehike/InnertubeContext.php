@@ -189,7 +189,7 @@ class InnertubeContext
                     'visitorData' => self::genVisitorData($visitorData),
                     'clientName' => $cname,
                     'clientVersion' => $cver,
-                    'userAgent' => "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                    'userAgent' => $_SERVER['HTTP_USER_AGENT'] ?? ""
                 ],
                 'user' => (object) [
                     'lockedSafetyMode' => false

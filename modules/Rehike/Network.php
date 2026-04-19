@@ -113,7 +113,7 @@ class Network
         string $action, 
         array $body = [],
         string $clientName = "WEB", 
-        string $clientVersion = "2.20250928.01.00",
+        string $clientVersion = "2.20220301.07.00",
         bool $ignoreErrors = false,
         bool $useAuthentication = true
     ): Promise/*<IResponse>*/
