@@ -112,12 +112,6 @@ class PlayerUpdater
             $effectiveCssUrl = $latestCssUrl;
         }
 
-        // Absolute foolproof override: explicitly force the 2020 player URLs
-        // to guarantee the modern players (with SABR & WebPO) are not returned.
-        // Even the 2022 player was found to contain WebPO which fatally crashes here.
-        $effectiveJsUrl = "/yts/jsbin/player_ias-vfl1Ng2HU/en_US/base.js";
-        $effectiveCssUrl = "/yts/cssbin/player-vflfo9Nwd/www-player-webp.css";
-
         // Extract STS from the EFFECTIVE player JS (the one actually served to
         // the browser), NOT from the latest. The STS must match the player JS
         // cipher or stream URL decryption will fail.

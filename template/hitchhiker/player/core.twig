@@ -23,6 +23,14 @@
    for synchronous loading of core JS. It used to be located here, but this code is loaded before YouTube's
    JS, so it failed to load correctly. #}
       <script>
+         // Surface RT Fix: The modern 2026 player uses SABR/MSE which crashes the network stack
+         // on the Tegra 3 Chromium 77 (ERR_CONNECTION_RESET). IE11 doesn't crash because it lacks
+         // full MSE support and triggers the player's natural progressive fallback.
+         // By nullifying MediaSource here, we force the 2026 player into progressive HTTP streaming!
+         window.MediaSource = undefined;
+         window.WebKitMediaSource = undefined;
+      </script>
+      <script>
 {% apply spaceless %}
 var ytplayer = ytplayer || {};
 ytplayer.config = {
