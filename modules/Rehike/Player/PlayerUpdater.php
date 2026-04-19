@@ -112,6 +112,11 @@ class PlayerUpdater
             $effectiveCssUrl = $latestCssUrl;
         }
 
+        // Absolute foolproof override: explicitly force the 2022 player URLs
+        // to guarantee the modern 2026 player (with SABR) is not returned.
+        $effectiveJsUrl = "/s/player/c57c113c/player_ias.vflset/en_US/base.js";
+        $effectiveCssUrl = "/s/player/c57c113c/www-player.css";
+
         // Extract STS from the EFFECTIVE player JS (the one actually served to
         // the browser), NOT from the latest. The STS must match the player JS
         // cipher or stream URL decryption will fail.
@@ -147,11 +152,6 @@ class PlayerUpdater
                 throw new UpdaterException("Failed to extract STS from any source.");
             }
         }
-
-        // Absolute foolproof override: explicitly force the 2022 player URLs
-        // to guarantee the modern 2026 player (with SABR) is not returned.
-        $effectiveJsUrl = "/s/player/c57c113c/player_ias.vflset/en_US/base.js";
-        $effectiveCssUrl = "/s/player/c57c113c/www-player.css";
 
         return (object)[
             "baseJsUrl" => $effectiveJsUrl,
