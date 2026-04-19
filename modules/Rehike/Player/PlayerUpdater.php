@@ -67,27 +67,19 @@ class PlayerUpdater
             throw $e;
         }
 
-        try {
-            $js = self::requestApplication(self::unrelativize($latestJsUrl));
-            $sts = self::extractSts($js);
-        } catch (\Throwable $e) {
-            try {
-                $homeHtml = Network::request("https://www.youtube.com");
-                
-                if (preg_match('/"(?:sts|STS|signatureTimestamp)"\s*[:=]\s*(\d+)/', $homeHtml, $matches)) {
-                    $sts = (string)$matches[1];
-                } else {
-                    throw new UpdaterException("Failed to find STS in fallback.");
-                }
-            } catch (\Throwable $e2) {
-                throw new UpdaterException("Failed to fetch player fallback: " . $e2->getMessage());
-            }
-        }
-
         if (IS_REHIKE)
             $playerChoice = Config::getConfigProp("appearance.playerChoice");
         else
             $playerChoice = "PLAYER_2014";
+
+        // Surface RT: Force PLAYER_2022 to avoid SABR protocol.
+        // The modern (CURRENT) player constructs SABR URLs independently of
+        // the playerResponse, causing ERR_CONNECTION_RESET on Chromium 77.
+        // PLAYER_2022 predates SABR entirely and uses classic HTTP streaming.
+        if ("CURRENT" === $playerChoice)
+        {
+            $playerChoice = "PLAYER_2022";
+        }
 
         if ("PLAYER_2022" === $playerChoice)
         {
@@ -118,6 +110,42 @@ class PlayerUpdater
         {
             $effectiveJsUrl = $latestJsUrl;
             $effectiveCssUrl = $latestCssUrl;
+        }
+
+        // Extract STS from the EFFECTIVE player JS (the one actually served to
+        // the browser), NOT from the latest. The STS must match the player JS
+        // cipher or stream URL decryption will fail.
+        $sts = null;
+        $jsUrlToFetch = ($effectiveJsUrl !== $latestJsUrl)
+            ? $effectiveJsUrl
+            : $latestJsUrl;
+
+        try {
+            $js = self::requestApplication(self::unrelativize($jsUrlToFetch));
+            $sts = self::extractSts($js);
+        } catch (\Throwable $e) {
+            // If the effective player fetch fails (e.g. 404 for old CDN URL),
+            // fall back to the latest player STS.
+            try {
+                if ($jsUrlToFetch !== $latestJsUrl) {
+                    $js = self::requestApplication(self::unrelativize($latestJsUrl));
+                    $sts = self::extractSts($js);
+                }
+            } catch (\Throwable $e2) {}
+
+            // Ultimate fallback: extract STS from the YouTube homepage.
+            if ($sts === null) {
+                try {
+                    $homeHtml = Network::request("https://www.youtube.com");
+                    if (preg_match('/\"(?:sts|STS|signatureTimestamp)\"\s*[:=]\s*(\d+)/', $homeHtml, $matches)) {
+                        $sts = (string)$matches[1];
+                    }
+                } catch (\Throwable $e3) {}
+            }
+
+            if ($sts === null) {
+                throw new UpdaterException("Failed to extract STS from any source.");
+            }
         }
 
         return (object)[
