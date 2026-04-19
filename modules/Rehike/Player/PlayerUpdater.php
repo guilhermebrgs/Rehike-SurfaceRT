@@ -72,15 +72,6 @@ class PlayerUpdater
         else
             $playerChoice = "PLAYER_2014";
 
-        // Surface RT: Force PLAYER_2022 to avoid SABR protocol.
-        // The modern (CURRENT) player constructs SABR URLs independently of
-        // the playerResponse, causing ERR_CONNECTION_RESET on Chromium 77.
-        // PLAYER_2022 predates SABR entirely and uses classic HTTP streaming.
-        if ("CURRENT" === $playerChoice)
-        {
-            $playerChoice = "PLAYER_2022";
-        }
-
         if ("PLAYER_2022" === $playerChoice)
         {
             $effectiveJsUrl = "/s/player/c57c113c/player_ias.vflset/en_US/base.js";
