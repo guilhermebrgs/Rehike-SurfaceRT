@@ -41,6 +41,58 @@ class InnertubePlayerProxyController extends HitchhikerController implements IPo
                 if (isset($data->adSlots))
                     unset($data->adSlots);
 
+                // Strip SABR streaming protocol for legacy browser compatibility
+                if (isset($data->streamingData))
+                {
+                    $sd = $data->streamingData;
+
+                    if (isset($sd->serverAbrStreamingUrl))
+                        unset($sd->serverAbrStreamingUrl);
+
+                    if (isset($sd->adaptiveFormats) && is_array($sd->adaptiveFormats))
+                    {
+                        $filtered = [];
+                        foreach ($sd->adaptiveFormats as $format)
+                        {
+                            if (isset($format->mimeType))
+                            {
+                                $mime = strtolower($format->mimeType);
+                                if (
+                                    strpos($mime, 'vp9') !== false ||
+                                    strpos($mime, 'vp09') !== false ||
+                                    strpos($mime, 'av01') !== false ||
+                                    strpos($mime, 'opus') !== false
+                                ) {
+                                    continue;
+                                }
+                            }
+                            if (isset($format->url))
+                            {
+                                $format->url = preg_replace('/([&?])sabr=1/', '$1', $format->url);
+                                $format->url = preg_replace('/([&?])rqh=1/', '$1', $format->url);
+                                $format->url = preg_replace('/[&?]$/', '', $format->url);
+                                $format->url = str_replace('&&', '&', $format->url);
+                            }
+                            $filtered[] = $format;
+                        }
+                        $sd->adaptiveFormats = $filtered;
+                    }
+
+                    if (isset($sd->formats) && is_array($sd->formats))
+                    {
+                        foreach ($sd->formats as $format)
+                        {
+                            if (isset($format->url))
+                            {
+                                $format->url = preg_replace('/([&?])sabr=1/', '$1', $format->url);
+                                $format->url = preg_replace('/([&?])rqh=1/', '$1', $format->url);
+                                $format->url = preg_replace('/[&?]$/', '', $format->url);
+                                $format->url = str_replace('&&', '&', $format->url);
+                            }
+                        }
+                    }
+                }
+
                 $modifiedResponse = json_encode($data);
             }
             else

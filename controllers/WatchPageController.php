@@ -278,6 +278,10 @@ class WatchPageController extends NirvanaController implements IGetControllerAsy
                 $this->removeAds($playerResponse);
             }
 
+            // Strip SABR streaming protocol and incompatible codecs
+            // for legacy browser compatibility (Chromium 77, IE11).
+            $this->stripSabrFromStreamingData($playerResponse);
+
              // Push these over to the global object.
              $yt->playerResponse = $playerResponse;
              $yt->watchNextResponse = $nextResponse;
@@ -361,5 +365,83 @@ class WatchPageController extends NirvanaController implements IGetControllerAsy
 
         if (isset($playerResponse->adSlots))
             unset($playerResponse->adSlots);
+    }
+
+    /**
+     * Strip SABR (Server-side Adaptive Bitrate) protocol parameters from
+     * streaming data and filter out codecs incompatible with legacy browsers
+     * and the Tegra 3 hardware decoder.
+     *
+     * The modern YouTube player ignores experiment flags to disable SABR,
+     * so we must remove it server-side before the response reaches the browser.
+     * Without this, Chromium 77 receives SABR URLs that require HTTP/2+ features
+     * it doesn't support, causing ERR_CONNECTION_RESET after ~60 seconds.
+     */
+    protected function stripSabrFromStreamingData(object $playerResponse): void
+    {
+        if (!isset($playerResponse->streamingData))
+        {
+            return;
+        }
+
+        $sd = $playerResponse->streamingData;
+
+        // Remove the SABR-specific server streaming URL entirely.
+        // This is the primary URL used by the SABR protocol.
+        if (isset($sd->serverAbrStreamingUrl))
+        {
+            unset($sd->serverAbrStreamingUrl);
+        }
+
+        // Process adaptive formats (separate audio/video streams)
+        if (isset($sd->adaptiveFormats) && is_array($sd->adaptiveFormats))
+        {
+            $filtered = [];
+            foreach ($sd->adaptiveFormats as $format)
+            {
+                // Filter out VP9, AV1, and Opus codecs that Tegra 3 cannot
+                // hardware-decode. Keep only H.264 (avc1) and AAC (mp4a).
+                if (isset($format->mimeType))
+                {
+                    $mime = strtolower($format->mimeType);
+                    if (
+                        strpos($mime, 'vp9') !== false ||
+                        strpos($mime, 'vp09') !== false ||
+                        strpos($mime, 'av01') !== false ||
+                        strpos($mime, 'opus') !== false
+                    ) {
+                        continue; // Skip this format
+                    }
+                }
+
+                // Strip SABR parameters from the URL
+                if (isset($format->url))
+                {
+                    $format->url = preg_replace('/([&?])sabr=1/', '$1', $format->url);
+                    $format->url = preg_replace('/([&?])rqh=1/', '$1', $format->url);
+                    // Clean up any resulting double-& or trailing &
+                    $format->url = preg_replace('/[&?]$/', '', $format->url);
+                    $format->url = str_replace('&&', '&', $format->url);
+                }
+
+                $filtered[] = $format;
+            }
+            $sd->adaptiveFormats = $filtered;
+        }
+
+        // Process combined formats (muxed audio+video streams)
+        if (isset($sd->formats) && is_array($sd->formats))
+        {
+            foreach ($sd->formats as $format)
+            {
+                if (isset($format->url))
+                {
+                    $format->url = preg_replace('/([&?])sabr=1/', '$1', $format->url);
+                    $format->url = preg_replace('/([&?])rqh=1/', '$1', $format->url);
+                    $format->url = preg_replace('/[&?]$/', '', $format->url);
+                    $format->url = str_replace('&&', '&', $format->url);
+                }
+            }
+        }
     }
 }
