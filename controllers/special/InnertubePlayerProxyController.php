@@ -70,6 +70,7 @@ class InnertubePlayerProxyController extends HitchhikerController implements IPo
                             {
                                 $format->url = preg_replace('/([&?])sabr=1/', '$1', $format->url);
                                 $format->url = preg_replace('/([&?])rqh=1/', '$1', $format->url);
+                                $format->url = preg_replace('/([&?])c=WEB/', '$1c=TVHTML5', $format->url);
                                 $format->url = preg_replace('/[&?]$/', '', $format->url);
                                 $format->url = str_replace('&&', '&', $format->url);
                             }
@@ -86,6 +87,7 @@ class InnertubePlayerProxyController extends HitchhikerController implements IPo
                             {
                                 $format->url = preg_replace('/([&?])sabr=1/', '$1', $format->url);
                                 $format->url = preg_replace('/([&?])rqh=1/', '$1', $format->url);
+                                $format->url = preg_replace('/([&?])c=WEB/', '$1c=TVHTML5', $format->url);
                                 $format->url = preg_replace('/[&?]$/', '', $format->url);
                                 $format->url = str_replace('&&', '&', $format->url);
                             }

@@ -393,6 +393,21 @@ class WatchPageController extends NirvanaController implements IGetControllerAsy
             unset($sd->serverAbrStreamingUrl);
         }
 
+        // Process progressive formats
+        if (isset($sd->formats) && is_array($sd->formats))
+        {
+            foreach ($sd->formats as $format)
+            {
+                if (isset($format->url))
+                {
+                    // By changing c=WEB to c=TVHTML5 on the streaming URL, YouTube CDN
+                    // exempts the Chrome browser from the PO Token (pot=) enforcement,
+                    // solving the 403 Forbidden errors when Rehike fails to attach them.
+                    $format->url = preg_replace('/([&?])c=WEB/', '$1c=TVHTML5', $format->url);
+                }
+            }
+        }
+
         // Process adaptive formats (separate audio/video streams)
         if (isset($sd->adaptiveFormats) && is_array($sd->adaptiveFormats))
         {
@@ -419,6 +434,8 @@ class WatchPageController extends NirvanaController implements IGetControllerAsy
                 {
                     $format->url = preg_replace('/([&?])sabr=1/', '$1', $format->url);
                     $format->url = preg_replace('/([&?])rqh=1/', '$1', $format->url);
+                    // Override c=WEB to bypass PO Token enforcement on Chromium
+                    $format->url = preg_replace('/([&?])c=WEB/', '$1c=TVHTML5', $format->url);
                     // Clean up any resulting double-& or trailing &
                     $format->url = preg_replace('/[&?]$/', '', $format->url);
                     $format->url = str_replace('&&', '&', $format->url);
