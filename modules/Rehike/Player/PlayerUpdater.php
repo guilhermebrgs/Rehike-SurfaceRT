@@ -148,6 +148,11 @@ class PlayerUpdater
             }
         }
 
+        // Absolute foolproof override: explicitly force the 2022 player URLs
+        // to guarantee the modern 2026 player (with SABR) is not returned.
+        $effectiveJsUrl = "/s/player/c57c113c/player_ias.vflset/en_US/base.js";
+        $effectiveCssUrl = "/s/player/c57c113c/www-player.css";
+
         return (object)[
             "baseJsUrl" => $effectiveJsUrl,
             "baseCssUrl" => $effectiveCssUrl,
